@@ -1,6 +1,6 @@
-import * as React from 'react';
+import  React, {useEffect, useState} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import {View, Text, SafeAreaView, StatusBar,Button, TouchableOpacity, StyleSheet, ScrollView,Image} from 'react-native';
+import {View, Text, Dimensions, StatusBar,Button, TouchableOpacity, StyleSheet, ScrollView,Image} from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -31,11 +31,59 @@ function HomeScreen({ navigation }) {
   );
 }
 
-function PortfolioScreen({ navigation }) {
+function PortfolioScreen({ navigation,route }) {
+  const [images,setImages]=useState([
+    {
+      img: require('./resources/img1.png'),
+      height: 0,
+      widht: 0,
+      ratio: 0,
+    },
+    {
+      img: require('./resources/img3.jpg'),
+      height: 0,
+      widht: 0,
+      ratio: 0,
+    },
+    {
+      img: require('./resources/img4.png'),
+      height: 0,
+      widht: 0,
+      ratio: 0,
+    },
+  ]);
+  const [windowWidht,setWindowWidth]=useState(0);
+  useEffect(()=>{
+    let windowWidhtN = Dimensions.get('window').width;
+    setWindowWidth(windowWidhtN - 30 - 40);
+    let newImages = images.filter(function(val){
+      let w = Image.resolveAssetSource(val.img).width;
+      let h = Image.resolveAssetSource(val.img).height;
+      val.widht = w;
+      val.height = h;
+      val.ratio = h/w;
+      return val;
+    });
+    setImages(newImages);
+  },[]);
+
   return (
-    <View style={styles.tela}>
-      <Text>Portfolio</Text>
+    <ScrollView>
+    <View style={styles.telaPortfolio}>
+      <Text>Os últimos projetos!</Text>
+      {images.map((val=>{
+        return (
+          <View style = {styles.parentImage}>
+            <Image style={{
+              width:windowWidht, 
+              height:windowWidht*val.ratio, 
+              resizeMode:'stretch'}} source={val.img}/>
+              <TouchableOpacity><Text>Abrir no navegador.</Text></TouchableOpacity>
+          </View>
+        );
+      }))}
     </View>
+    </ScrollView>
   );
 }
 
@@ -97,6 +145,10 @@ const styles=StyleSheet.create({
   container:{
     backgroundColor:'white',
   },
+  telaPortfolio:{
+    flex:1,
+    padding:15,
+  },
   tela:{
     flex:1,
     padding:15,
@@ -110,5 +162,10 @@ const styles=StyleSheet.create({
     padding:20,
     marginTop:15,
     flexDirection:'row',
+  },
+  parentImage:{
+    backgroundColor:'lightgray',
+    marginTop:30,
+    alignItems:'center',
   },
 });
